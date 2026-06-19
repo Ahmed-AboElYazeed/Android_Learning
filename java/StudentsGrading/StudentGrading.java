@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -53,23 +54,83 @@ public class StudentGrading {
     public int scanNewStudent(){
         System.out.print("Enter Student name: ");
         String name = scanner.nextLine(); 
-        
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println("Invalid input: Name cannot be empty.");
+            return -1;
+        }
+
         System.out.print("Enter Student number: ");
-        int id = scanner.nextInt(); 
+        int id;
+        try {
+            id = scanner.nextInt(); 
+            if (id <= 0) {
+                System.out.println("Invalid input: Student number must be a positive integer.");
+                scanner.nextLine(); // clear buffer
+                return -1;
+            }
+            for (DataRow row : studentTable) {
+                if (row.id == id) {
+                    System.out.println("Invalid input: Student number already exists.");
+                    scanner.nextLine(); // clear buffer
+                    return -1;
+                }
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input: Student number must be an integer.");
+            scanner.nextLine(); // clear invalid input
+            return -1;
+        }
 
         System.out.print("Enter C programming grade (%): ");
-        int c = scanner.nextInt(); 
+        int c;
+        try {
+            c = scanner.nextInt(); 
+            if (c < 0 || c > 100) {
+                System.out.println("Invalid input: Grade must be between 0 and 100.");
+                scanner.nextLine(); // clear buffer
+                return -1;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input: Grade must be a valid number.");
+            scanner.nextLine(); // clear invalid input
+            return -1;
+        }
         
         System.out.print("Enter QT course grade (%): ");
-        int qt = scanner.nextInt(); 
+        int qt;
+        try {
+            qt = scanner.nextInt(); 
+            if (qt < 0 || qt > 100) {
+                System.out.println("Invalid input: Grade must be between 0 and 100.");
+                scanner.nextLine(); // clear buffer
+                return -1;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input: Grade must be a valid number.");
+            scanner.nextLine(); // clear invalid input
+            return -1;
+        }
 
         System.out.print("Enter Android course grade (%): ");
-        int android = scanner.nextInt(); 
+        int android;
+        try {
+            android = scanner.nextInt(); 
+            if (android < 0 || android > 100) {
+                System.out.println("Invalid input: Grade must be between 0 and 100.");
+                scanner.nextLine(); // clear buffer
+                return -1;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input: Grade must be a valid number.");
+            scanner.nextLine(); // clear invalid input
+            return -1;
+        }
 
         // to dump the last \n form the buffer
         scanner.nextLine(); 
 
         studentTable.add(new DataRow(name, id, c, qt, android));
+        System.out.println("Student added successfully.");
         return 0;
     }
     public void printStudentsInfo(){
@@ -88,20 +149,39 @@ public class StudentGrading {
     public void getStudentGrade(){
         if (studentTable.isEmpty()) {
             System.out.println("No student data available.");
+            return;
         }
 
         System.out.print("Enter Student number: ");
-        int id = scanner.nextInt();
+        int id;
+        try {
+            id = scanner.nextInt();
+            if (id <= 0) {
+                System.out.println("Invalid input: Student number must be a positive integer.");
+                scanner.nextLine(); // clear buffer
+                return;
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input: Student number must be an integer.");
+            scanner.nextLine(); // clear invalid input
+            return;
+        }
 
         // to dump the last \n form the buffer
         scanner.nextLine();
 
+        boolean found = false;
         for (DataRow dataRow : studentTable) {
             if (dataRow.id == id) {
                 System.out.println(String.format("%-15s %-15s %-10s", "Name", "Number", "Total"));
                 System.out.println(String.format("%-15s %-15d %-10.1f", 
                 dataRow.name, dataRow.id, (dataRow.val1 + dataRow.val2 + dataRow.val3)/3));
+                found = true;
+                break;
             }
+        }
+        if (!found) {
+            System.out.println("Student not found.");
         }
     }
     public void getStudentsRank(){
